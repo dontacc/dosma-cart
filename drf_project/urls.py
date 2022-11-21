@@ -38,4 +38,9 @@ urlpatterns = [
 
 
 
+    # Wallet
+    path("wallet/" , include("wallet.urls")),
+
+
+
 ]

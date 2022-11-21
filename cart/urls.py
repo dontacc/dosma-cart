@@ -1,10 +1,11 @@
 from django.urls import path
+from .view import cartView ,cartitemView , detailitemView
 
-from .view import cartitemView, cartView, detailitemView
+
+
 
 urlpatterns = [
-    path("situation", cartView.CartView.as_view(), name="cart-page"),  # carts
-    path("", cartitemView.CartItemView.as_view(), name="cartItem-page"),  # itemCarts
-    path("<int:pk>/", detailitemView.DetailItemView.as_view(), name="delete-item"),  # for delete the object
-
+    path("" , cartitemView.CartItemView.as_view() , name="cart-list"),
+    path("situation/" , cartView.CartView.as_view() , name="cart-status"),
+    path("<int:pk>" , detailitemView.DetailItemView.as_view() , name="detail-page")
 ]

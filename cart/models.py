@@ -6,7 +6,7 @@ from api.models import product
 
 # sabade kharid
 class cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_paid = models.BooleanField(default=False)
     payment_date = models.DateField(null=True, blank=True)  # karbari ke sabade kharid barash baz mishe hamon lahze ke
     # pardakht nemikone baraye hamin null va blank mitone bashe ta ye timi

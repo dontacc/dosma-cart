@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'cart',
     'azbankgateways',
     'gateway',
-    'wallet'
+    'wallet',
 ]
 
 MIDDLEWARE = [
@@ -151,7 +151,7 @@ AZ_IRANIAN_BANK_GATEWAYS = {
        'IDPAY': {
            'MERCHANT_CODE': '0e8034e8-9166-4773-8106-ac994274ec19',
            'METHOD': 'POST',  # GET or POST
-           'X_SANDBOX': 0,  # 0 disable, 1 active
+           'X_SANDBOX': 1,  # 0 disable, 1 active
        },
 
    },
