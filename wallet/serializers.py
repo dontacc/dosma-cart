@@ -1,31 +1,41 @@
 from rest_framework import serializers
-
+from rest_framework.response import Response
+from rest_framework import status
 from . import models
 
 
 class WalletSerializer(serializers.ModelSerializer):
-    current_balance = serializers.SerializerMethodField(method_name="total_balance")
+    balance = serializers.SerializerMethodField(method_name="total_balance")
+    user = serializers.SerializerMethodField(method_name="user_list")
 
     class Meta:
         model = models.Wallet
-        fields = ["user", "amount" , "current_balance"]
+        fields = ["id", "user", "balance"]
 
-    def total_balance(self):
-        deposits = sum([item.amount for item in Deposit.objects.all()])
-        withdraws = sum([item.amount for item in Withdraw.objects.all()])
-        return deposits - withdraws
+    def total_balance(self, item):
+        deposit = sum([item.amount for item in models.Deposit.objects.all()])
+        withdraw = sum([item.amount for item in models.Withdraw.objects.all()])
+        return deposit - withdraw
+
+
+
+
+
+
+    def user_list(self, value):
+        return {
+            "username": value.user.username,
+            "first_name": value.user.first_name
+        }
 
 
 class DepositSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Deposit
-        fields = ["id", "user", "amount"]
+        fields = ["id", "wallet", "amount", "created"]
 
 
 class WithdrawSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Withdraw
-        fields = ["id", "user", "amount"]
-
-
-
+        fields = ["id", "wallet", "amount", "created"]

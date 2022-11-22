@@ -8,20 +8,20 @@ from rest_framework.views import APIView
 
 class CartItemView(APIView):
     def get(self, request):
-
         listCart = models.cartItem.objects.all()
         serializer = serializers.cartItemSerializer(listCart, many=True, context={"request": request})
         return Response(serializer.data)
 
     def post(self, request):
-        if len(models.cartItem.objects.all()) == 1:
-            return Response("در سبد خرید شما یک سفارش وجود دارد")
+
         serializer = serializers.cartItemSerializer(data=request.data)  # request.data hamon dataye vared shodas
         if serializer.is_valid():
             order = serializer.validated_data.get("payment")
             product = serializer.validated_data.get("product")
             serializer.save()
             return Response({"message": "product added to the cart!"}, status=status.HTTP_201_CREATED)
+            x = len(models.cartItem.objects.all())
+            print(f"شما سفارش در سبد خرید خود دارید {x}")
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
