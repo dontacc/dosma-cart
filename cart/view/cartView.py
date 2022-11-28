@@ -16,7 +16,6 @@ class CartView(APIView):
         serializer = serializers.cartSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data.get("user")
-            is_paid = serializer.validated_data.get("is_paid")
             serializer.save()
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -13,34 +13,27 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from azbankgateways.urls import az_bank_gateways_urls
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt import views as jwt_views
-from azbankgateways.urls import az_bank_gateways_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("restframework-auth", include('rest_framework.urls')),
     path("api/", include("api.urls")),
 
-    # path("api/token/", jwt_views.TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    # path("api/token/refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
+    # JWT
+    # path("token/", jwt_views.TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    # path("token/refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
+    # path("token/verify" , jwt_views.TokenVerifyView.as_view() , name="token_verify"),
 
+    # Cart
+    path("carts/", include("cart.urls")),
 
-    path("carts/" , include("cart.urls")),
-    # path("account/" , include("account.urls"))
-
-
-    # payment gateways:
-    # bara inke package betone vasl beshe be dargahe bank va response dargahe bank
-    path("bankgateways/" , az_bank_gateways_urls()),
-    path("" , include("gateway.urls")),
-
-
+    # payment gateways
+    path("bankgateways/", az_bank_gateways_urls()),
 
     # Wallet
-    path("wallet/" , include("wallet.urls")),
-
-
-
+    path("wallet/", include("wallet.urls")),
 ]

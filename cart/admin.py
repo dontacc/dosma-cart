@@ -5,6 +5,11 @@ from . import models
 
 
 
+@admin.register(models.cartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ["product","order"]
 
-admin.site.register(models.cart)
-admin.site.register(models.cartItem )
+
+@admin.register(models.cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ["user","is_paid"]

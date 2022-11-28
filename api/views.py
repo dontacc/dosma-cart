@@ -29,6 +29,7 @@ class productView(ListCreateAPIView):
 class detailProduct(RetrieveAPIView):
     queryset = models.product
     serializer_class = serializers.productSerializers
+    lookup_field = "slug"
 
 
 

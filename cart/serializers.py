@@ -7,7 +7,7 @@ from . import models
 
 # nested serializers
 class sampleProductSerializer(serializers.ModelSerializer):
-    id = serializers.HyperlinkedRelatedField(view_name='detail-page' ,read_only=True)
+    id = serializers.HyperlinkedRelatedField(view_name='detail-page' ,read_only=True,lookup_url_kwarg="slug")
     class Meta:
         model = product
         fields = ["id", "title", "price"]

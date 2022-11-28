@@ -11,7 +11,7 @@ from rest_framework import routers
 
 urlpatterns = [
     path("products/" ,views.productView.as_view() , name="product_list"),
-    path("products/<int:pk>" , views.detailProduct.as_view() , name="detail-page")
+    path("products/<str:slug>" , views.detailProduct.as_view() , name="detail-page")
 ]
 
 # urlpatterns = [

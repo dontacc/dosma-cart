@@ -1,56 +1,109 @@
+# GateWay
+import logging
+
+from azbankgateways import bankfactories
+from azbankgateways import models as bank_models, default_settings as settings
+from azbankgateways.exceptions import AZBankGatewaysException
+from django.shortcuts import get_object_or_404
+from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import models
 from . import serializers
-
-
+from .permissions import IsStaffOrReadOnly
 
 
 class WalletView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
-        WalletList = models.Wallet.objects.all()
-        serializer = serializers.WalletSerializer(WalletList, many=True)
+        walletDetail = get_object_or_404(models.Wallet, user_id=request.user.id)
+        serializer = serializers.WalletSerializer(walletDetail)
         return Response(serializer.data)
 
     def post(self, request):
-        if len(models.Wallet.objects.all()) == 1:
-            return Response("شما یک کیف پول از قبل دارید", status=status.HTTP_400_BAD_REQUEST)
-        serializer = serializers.WalletSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.validated_data.get("user")
-            # total_balance = sum([item.amount for item in models.Deposit.objects.all()] \
-            #                     + [item.amount for item in models.Withdraw.objects.all()])
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-
-    # def total(self,request):
-    #     deposits = sum([item.amount for item in Deposit.objects.all()])
-    #     withdraws = sum([item.amount for item in Withdraw.objects.all()])
-    #     self.total_balance = (deposits - withdraws)
-    #     super().save(*args,**kwargs)
-    #     return self.total_balance
+        current_wallet = models.Wallet.objects.get_or_create(user_id=request.user.id)
+        serailizer = serializers.WalletSerializer(current_wallet, many=False)
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class DepositView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    # Deposit History
     def get(self, request):
-        depositList = models.Deposit.objects.all()
+        depositList = models.Deposit.objects.filter(status=True, user_id=request.user.id).all()
         serializer = serializers.DepositSerializer(depositList, many=True)
         return Response(serializer.data)
 
     def post(self, request):
         serializer = serializers.DepositSerializer(data=request.data)
         if serializer.is_valid():
-            wallet = serializer.validated_data.get("wallet")
-            amount = serializer.validated_data.get("amount")
+            user = serializer.validated_data.get(request.user.id)
+            Amount = serializer.validated_data.get("amount")
             serializer.save()
-            return Response(status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # go-to-gateway
+            # خواندن مبلغ از هر جایی که مد نظر است
+            amount = Amount
+            # تنظیم شماره موبایل کاربر از هر جایی که مد نظر است
+            user_mobile_number = '+989112221234'  # اختیاری
+            factory = bankfactories.BankFactory()
+            try:
+                # az create zamani estefade mikonim ke mikhaym be on banke maghsad mostaghim vasl shim va banke
+                # dg nadarim, autocreate ag bezanim mire kole gateway haro miagarde toshon ag  banki faild shod
+                bank = factory.create()  # or factory.create(bank_models.BankType.BMI) or set identifier
+                bank.set_request(request)
+                bank.set_amount(amount)
+                # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
+                # bank.set_client_callback_url(reverse('callback-gateway'))
+                bank.set_client_callback_url('/wallet/callback-gateway/')
+                bank.set_mobile_number(user_mobile_number)  # اختیاری
+                # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
+                # پرداخت برقرار کنید.
+                bank_record = bank.ready()
+                # هدایت کاربر به درگاه بانک
+                return bank.redirect_gateway()
+
+
+            except AZBankGatewaysException as e:
+                logging.critical(e)
+                # TODO: redirect to failed page.
+                raise e
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CallBackView(APIView):
+    def get(self, request):
+        tracking_code = request.GET.get(settings.TRACKING_CODE_QUERY_PARAM, None)
+        if not tracking_code:
+            logging.debug("این لینک معتبر نیست.")
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        try:
+            bank_record = bank_models.Bank.objects.get(tracking_code=tracking_code)
+
+        except bank_models.Bank.DoesNotExist:
+            logging.debug("این لینک معتبر نیست.")
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+            # در این قسمت باید از طریق داده هایی که در بانک رکورد وجود دارد، رکورد متناظر یا هر اقدام مقتضی دیگر را انجام دهیم
+        if bank_record.is_success:
+            # پرداخت با موفقیت انجام پذیرفته است و بانک تایید کرده است.
+            # می توانید کاربر را به صفحه نتیجه هدایت کنید یا نتیجه را نمایش دهید.
+            # obj = models.Deposit.objects.get()
+            # obj.status = True
+            # obj.save()
+            return Response("پرداخت با موفقیت انجام شد.", status=status.HTTP_201_CREATED)
+
+        # پرداخت موفق نبوده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.
+        return Response(
+            "پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.")
 
 
 class WithdrawView(APIView):
+    permission_classes = [IsStaffOrReadOnly]
+
     def get(self, request):
         withdrawList = models.Withdraw.objects.all()
         serializer = serializers.WithdrawSerializer(withdrawList, many=True)
@@ -63,8 +116,6 @@ class WithdrawView(APIView):
             amount = serializer.validated_data.get("amount")
             if amount >= models.Wallet.total(self):
                 return Response("موجودی کافی نیست!", status=status.HTTP_400_BAD_REQUEST)
-            elif models.Wallet.total(self) - 10 < amount:
+            elif models.Wallet.total(self) - 100000 < amount:
                 return Response("10 هزار تومان باید در حساب بماند", status=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors)
