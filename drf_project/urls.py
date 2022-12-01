@@ -24,9 +24,9 @@ urlpatterns = [
     path("api/", include("api.urls")),
 
     # JWT
-    # path("token/", jwt_views.TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    # path("token/refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
-    # path("token/verify" , jwt_views.TokenVerifyView.as_view() , name="token_verify"),
+    path("token/", jwt_views.TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/refresh/", jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
+    path("token/verify" , jwt_views.TokenVerifyView.as_view() , name="token_verify"),
 
     # Cart
     path("carts/", include("cart.urls")),

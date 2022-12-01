@@ -4,29 +4,40 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-# sabade kharid
-class cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    is_paid = models.BooleanField(default=False)
-    payment_date = models.DateTimeField  # karbari ke sabade kharid barash baz mishe hamon lahze ke
 
-    # pardakht nemikone baraye hamin null va blank mitone bashe ta ye timi
+# sabade kharid
+class Cart(models.Model):
+
+    CASH = "نقدی"
+    ONLINE = "آنلاین"
+    WALLET = "کیف پول"
+
+    PAYMENT_KINDS = [
+        (CASH, "cash"),
+        (ONLINE, 'online'),
+        (WALLET, 'wallet'),
+    ]
+
+    # class PaymentKind(models.IntegerChoices):
+    #     CASH = 1 , "نقدی"
+    #     ONLINE = 2 , "آنلاین"
+    #     WALLET = 3 , "کیف پول "
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_paid = models.BooleanField(null=False,default=False)
+    payment_date = models.DateTimeField  # karbari ke sabade kharid barash baz mishe hamon lahze ke
+    product = models.ForeignKey(product, on_delete=models.CASCADE,null=True)
+    payment = models.CharField(max_length=10,choices=PAYMENT_KINDS, help_text="choose one of the method for payment!" \
+                               ,default=ONLINE)
+    # Cart.PaymentKind.CASH
 
     def __str__(self):
         return self.user.username
 
-
-class cartItem(models.Model):
-    order = models.OneToOneField(cart, on_delete=models.CASCADE, null=True, related_name="items", blank=True)
-    # in items other ro mitonim dar field haye on yeki class dar serializer estefade konim
-    product = models.ForeignKey(product, on_delete=models.CASCADE, null=True, blank=True, related_name="cartitems")
-
-    def __str__(self):
-        return self.product.title
-
-
-
-class ShopList(models.Model):
-    user = models.OneToOneField(User , on_delete=models.CASCADE)
-    product = models.ForeignKey(cartItem , on_delete=models.CASCADE)
-
+# class cartItem(models.Model):
+#     order = models.OneToOneField(cart, on_delete=models.CASCADE, null=True, related_name="items", blank=True)
+#     # in items other ro mitonim dar field haye on yeki class dar serializer estefade konim
+#     product = models.ForeignKey(product, on_delete=models.CASCADE, null=True, blank=True, related_name="cartitems")
+#
+#     def __str__(self):
+#         return self.product.title

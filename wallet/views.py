@@ -17,10 +17,9 @@ from .permissions import IsStaffOrReadOnly
 
 class WalletView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request):
-        walletDetail = get_object_or_404(models.Wallet, user_id=request.user.id)
-        serializer = serializers.WalletSerializer(walletDetail)
+        wallet = get_object_or_404(models.Wallet, user_id=request.user.id)
+        serializer = serializers.WalletSerializer(wallet,read_only=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -34,14 +33,17 @@ class DepositView(APIView):
 
     # Deposit History
     def get(self, request):
-        depositList = models.Deposit.objects.filter(status=True, user_id=request.user.id).all()
-        serializer = serializers.DepositSerializer(depositList, many=True)
+        try:
+            depoistList = models.Deposit.objects.filter(user_id=request.user.id,status=True)
+        except:
+            return Response("تراکنشی موجود نیست",status=status.HTTP_200_OK)
+        serializer = serializers.DepositSerializer(depoistList, many=True)
         return Response(serializer.data)
 
     def post(self, request):
         serializer = serializers.DepositSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.validated_data.get(request.user.id)
+            user = serializer.validated_data.get("user")
             Amount = serializer.validated_data.get("amount")
             serializer.save()
             # go-to-gateway

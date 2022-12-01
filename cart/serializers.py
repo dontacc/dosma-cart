@@ -7,7 +7,7 @@ from . import models
 
 # nested serializers
 class sampleProductSerializer(serializers.ModelSerializer):
-    id = serializers.HyperlinkedRelatedField(view_name='detail-page' ,read_only=True,lookup_url_kwarg="slug")
+    # id = serializers.HyperlinkedRelatedField(view_name='detail-page' ,read_only=True,lookup_url_kwarg="slug")
     class Meta:
         model = product
         fields = ["id", "title", "price"]
@@ -19,20 +19,28 @@ class userSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "first_name", "last_name"]
 
 
-# detaile sabade kharid
-class cartItemSerializer(serializers.ModelSerializer):
-    order = serializers.StringRelatedField()
-    product = sampleProductSerializer(many=False)
+# class cartItemSerializer(serializers.ModelSerializer):
+#     order = serializers.StringRelatedField()
+#     product = sampleProductSerializer(many=False)
+#
+#     class Meta:
+#         model = models.cartItem
+#         fields = ["id", "order", "product"]
 
+
+class CartSerializer(serializers.ModelSerializer):
+    # user = serializers.SlugField()
+    # product = sampleProductSerializer()
     class Meta:
-        model = models.cartItem
-        fields = ["id", "order", "product"]
+        model = models.Cart
+        fields = ["id","user", "is_paid","product","payment"]
 
 
-class cartSerializer(serializers.ModelSerializer):
-    # inja product haye ziadi gharare neshon dade she
-    user = userSerializer()
 
-    class Meta:
-        model = models.cart
-        fields = ["user", "is_paid", "payment_date"]
+
+
+
+
+
+
+

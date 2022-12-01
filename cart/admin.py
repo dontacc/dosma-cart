@@ -5,11 +5,11 @@ from . import models
 
 
 
-@admin.register(models.cartItem)
-class CartItemAdmin(admin.ModelAdmin):
-    list_display = ["product","order"]
+# @admin.register(models.cartItem)
+# class CartItemAdmin(admin.ModelAdmin):
+#     list_display = ["product","order"]
 
 
-@admin.register(models.cart)
+@admin.register(models.Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ["user","is_paid"]
+    list_display = ["user","is_paid","product"]

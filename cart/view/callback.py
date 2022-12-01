@@ -23,10 +23,10 @@ class CallBackView(APIView):
         if bank_record.is_success:
             # پرداخت با موفقیت انجام پذیرفته است و بانک تایید کرده است.
             # می توانید کاربر را به صفحه نتیجه هدایت کنید یا نتیجه را نمایش دهید.
-            obj = models.cart.objects.get(user=request.user)
+            obj = models.Cart.objects.get(user_id=request.user.id,is_paid=False)
             obj.is_paid = True
             obj.save()
-            return Response("پرداخت با موفقیت انجام شد.",status=status.HTTP_200_OK)
+            return Response("پرداخت با موفقیت انجام شد.",status=status.HTTP_301_MOVED_PERMANENTLY)
 
         # پرداخت موفق نبوده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.
         return HttpResponse(
