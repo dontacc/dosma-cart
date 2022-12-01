@@ -1,5 +1,5 @@
 from django.urls import path
-from .view import cartView  , detailitemView , gateway,callback , paidOrders
+from .view import cartView  , detailitemView , gateway,callback
 from django.views.decorators.cache import cache_page
 
 
@@ -13,5 +13,4 @@ urlpatterns = [
     path("purchased/" , cartView.PurchasedView.as_view() , name="purchased-page"),
     path("go-to-gateway/" , gateway.PaymentGateway.as_view() , name="gateway-page"), # gateway
     path("callback-gateway/" , callback.CallBackView.as_view() , name="callback-page"), # callback-
-    path("done-orders/" , paidOrders.PaidOrderView.as_view() , name="done-orders"),
 ]
