@@ -7,13 +7,11 @@ class Wallet(models.Model):
     total_balance = models.FloatField(default=0)
 
 
-
     def __str__(self):
         return self.user.username
 
 
-    # def save(self,*args,**kwargs):
-    #     deposit =
+
 
 class Deposit(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

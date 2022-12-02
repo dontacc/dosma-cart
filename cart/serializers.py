@@ -33,13 +33,7 @@ class CartSerializer(serializers.ModelSerializer):
     # product = sampleProductSerializer()
     class Meta:
         model = models.Cart
-        fields = ["id","user", "is_paid","product","payment"]
-
-
-
-
-
-
+        fields = ["id","user", "is_paid","product","payment","created"]
 
 
 

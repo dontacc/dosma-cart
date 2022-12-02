@@ -115,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
@@ -135,14 +135,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-REST_FRAMEWORK = {
-# "DEFAULT_PERMISSION_CLASSES":[
-#         'rest_framework.permissions.IsAuthenticated'
+# REST_FRAMEWORK = {
+# # "DEFAULT_PERMISSION_CLASSES":[
+# #         'rest_framework.permissions.IsAuthenticated'
+# #     ],
+#     "DEFAULT_AUTHENTICATION_CLASSES": [
+#         "rest_framework_simplejwt.authentication.JWTAuthentication"
 #     ],
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication"
-    ],
-}
+# }
 from datetime import timedelta
 
 

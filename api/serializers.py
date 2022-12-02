@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 
 class productSerializers(serializers.ModelSerializer):
+    # id = serializers.HyperlinkedRelatedField(view_name="api:detail-page")
     class Meta:
         model = models.product
         fields = "__all__"

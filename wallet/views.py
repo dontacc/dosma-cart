@@ -12,6 +12,18 @@ from rest_framework.views import APIView
 from . import models
 from . import serializers
 from .permissions import IsStaffOrReadOnly
+from django.utils import timezone
+
+
+
+def BalanceWallet(request):
+    wallet = models.Wallet.filter(wallet_id=request.user.id)
+    balance = 0
+    deposits = sum([item.amount for item in models.Deposit.filter(deposit_id=request.user.id)])
+    withdraw = sum([item.amount for item in models.Withdraw.filter(withdraw_id=request.user.id)])
+    balance = deposits - withdraw
+    wallet.total_balance = balance
+    wallet.save()
 
 
 class WalletView(APIView):
@@ -34,6 +46,7 @@ class DepositView(APIView):
     def get(self, request):
         try:
             depoistList = models.Deposit.objects.filter(user_id=request.user.id,status=True)
+
         except:
             return Response("تراکنشی موجود نیست",status=status.HTTP_200_OK)
         serializer = serializers.DepositSerializer(depoistList, many=True)
@@ -45,6 +58,8 @@ class DepositView(APIView):
             user = serializer.validated_data.get("user")
             Amount = serializer.validated_data.get("amount")
             serializer.save()
+
+
             # go-to-gateway
             # خواندن مبلغ از هر جایی که مد نظر است
             amount = Amount
@@ -92,14 +107,21 @@ class CallBackView(APIView):
         if bank_record.is_success:
             # پرداخت با موفقیت انجام پذیرفته است و بانک تایید کرده است.
             # می توانید کاربر را به صفحه نتیجه هدایت کنید یا نتیجه را نمایش دهید.
-            # obj = models.Deposit.objects.get()
-            # obj.status = True
-            # obj.save()
+
+            obj = models.Deposit.objects.get(user_id=request.user.id,status=False)
+            obj.status = True
+            obj.save() #  .save faghat be single obj javab mide yani vaghti .get bashe na .filter
+
+            balance = models.Wallet.objects.get(user_id=request.user.id)
+            last_deposit = models.Deposit.objects.filter(user_id=request.user.id).last()
+            balance.total_balance = balance.total_balance + last_deposit.amount
+            balance.save()
             return Response("پرداخت با موفقیت انجام شد.", status=status.HTTP_201_CREATED)
 
         # پرداخت موفق نبوده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.
-        return Response(
-            "پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.")
+        if len(models.Deposit.objects.filter(status=False,user_id=request.user.id)) >= 1:
+            models.Deposit.objects.filter(status=False,user_id=request.user.id).delete()
+        return Response("پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.")
 
 
 class WithdrawView(APIView):
@@ -113,8 +135,7 @@ class WithdrawView(APIView):
     def post(self, request):
         serializer = serializers.WithdrawSerializer(data=request.data)
         if serializer.is_valid():
-            wallet = serializer.validated_data.get("wallet")
-            amount = serializer.validated_data.get("amount")
+            serializer.save()
             if amount >= models.Wallet.total(self):
                 return Response("موجودی کافی نیست!", status=status.HTTP_400_BAD_REQUEST)
             elif models.Wallet.total(self) - 100000 < amount:

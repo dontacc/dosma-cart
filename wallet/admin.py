@@ -11,7 +11,7 @@ class userAdmin(admin.ModelAdmin):
 
 @admin.register(models.Deposit)
 class Deposit(admin.ModelAdmin):
-    list_display = ["user", "amount","status"]
+    list_display = ["user", "amount","status","created"]
     list_filter = ["user"]
     search_fields = ["amount"]
 
