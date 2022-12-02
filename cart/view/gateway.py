@@ -1,21 +1,22 @@
 import logging
+
 from azbankgateways import bankfactories
 from azbankgateways.exceptions import AZBankGatewaysException
 from cart import models
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 # action by default methode get ro mifreste age methodesho malom nakonim
 class PaymentGateway(APIView):
     def get(self, request):
         # خواندن مبلغ از هر جایی که مد نظر است
-        if models.Cart.objects.filter(payment=ONLINE,user_id=request.user.id):
-            current_product = models.Cart.objects.filter(is_paid=False,user_id=request.user.id)
+        if models.Cart.objects.filter(payment=ONLINE, user_id=request.user.id):
+            current_product = models.Cart.objects.filter(is_paid=False, user_id=request.user.id)
             amount = sum([item.product.price for item in current_product])
             if amount == 0:
-                return Response("سفارشی در سبد خرید شما نیست",status=status.HTTP_400_BAD_REQUEST)
+                return Response("سفارشی در سبد خرید شما نیست", status=status.HTTP_400_BAD_REQUEST)
 
             # تنظیم شماره موبایل کاربر از هر جایی که مد نظر است
             user_mobile_number = '+989112221234'  # اختیاری

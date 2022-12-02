@@ -19,22 +19,9 @@ class userSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "first_name", "last_name"]
 
 
-# class cartItemSerializer(serializers.ModelSerializer):
-#     order = serializers.StringRelatedField()
-#     product = sampleProductSerializer(many=False)
-#
-#     class Meta:
-#         model = models.cartItem
-#         fields = ["id", "order", "product"]
-
-
 class CartSerializer(serializers.ModelSerializer):
     # user = serializers.SlugField()
     # product = sampleProductSerializer()
     class Meta:
         model = models.Cart
-        fields = ["id","user", "is_paid","product","payment","created"]
-
-
-
-
+        fields = ["id", "user", "is_paid", "product", "payment", "created"]

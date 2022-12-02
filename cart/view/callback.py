@@ -1,11 +1,12 @@
 import logging
+
 from azbankgateways import models as bank_models, default_settings as settings
-from django.http import HttpResponse, Http404
-from rest_framework.views import APIView
-from wallet import serializers
 from cart import models
-from rest_framework.response import Response
+from django.http import HttpResponse, Http404
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 
 class CallBackView(APIView):
     def get(self, request):
@@ -23,10 +24,10 @@ class CallBackView(APIView):
         if bank_record.is_success:
             # پرداخت با موفقیت انجام پذیرفته است و بانک تایید کرده است.
             # می توانید کاربر را به صفحه نتیجه هدایت کنید یا نتیجه را نمایش دهید.
-            obj = models.Cart.objects.get(user_id=request.user.id,is_paid=False)
+            obj = models.Cart.objects.get(user_id=request.user.id, is_paid=False)
             obj.is_paid = True
             obj.save()
-            return Response("پرداخت با موفقیت انجام شد.",status=status.HTTP_301_MOVED_PERMANENTLY)
+            return Response("پرداخت با موفقیت انجام شد.", status=status.HTTP_301_MOVED_PERMANENTLY)
 
         # پرداخت موفق نبوده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.
         return HttpResponse(

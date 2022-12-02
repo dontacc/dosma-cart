@@ -5,10 +5,8 @@ from django.db import models
 from django.utils import timezone
 
 
-
 # sabade kharid
 class Cart(models.Model):
-
     CASH = "نقدی"
     ONLINE = "آنلاین"
     WALLET = "کیف پول"
@@ -25,11 +23,11 @@ class Cart(models.Model):
     #     WALLET = 3 , "کیف پول "
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    is_paid = models.BooleanField(null=False,default=False)
+    is_paid = models.BooleanField(null=False, default=False)
     payment_date = models.DateTimeField  # karbari ke sabade kharid barash baz mishe hamon lahze ke
-    product = models.ForeignKey(product, on_delete=models.CASCADE,null=True)
-    payment = models.CharField(max_length=10,choices=PAYMENT_KINDS, help_text="choose one of the method for payment!" \
-                               ,default=ONLINE)
+    product = models.ForeignKey(product, on_delete=models.CASCADE, null=True)
+    payment = models.CharField(max_length=10, choices=PAYMENT_KINDS, help_text="choose one of the method for payment!" \
+                               , default=ONLINE)
     created = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
