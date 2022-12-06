@@ -11,7 +11,7 @@ class CartView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        productList = models.Cart.objects.filter(user_id=request.user.id,is_paid=False)
+        productList = models.Cart.objects.filter(user_id=request.user.id, is_paid=False)
         serializer = serializers.CartSerializer(productList, many=True, context={"request": request})
         return Response(serializer.data)
 
@@ -27,9 +27,9 @@ class CartView(APIView):
             return Response(serializer.errors)
 
     # @action(detail=False,methods=["put"])
-    def put(self,request):
+    def put(self, request):
         obj = models.Cart.objects.get(user_id=request.user.id)
-        serializer = serializers.CartSerializer(obj,data=request.data)
+        serializer = serializers.CartSerializer(obj, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -44,6 +44,6 @@ class CartView(APIView):
 # purchased products
 class PurchasedView(APIView):
     def get(self, request):
-        items = models.Cart.objects.filter(payment_status__contain=[""], user_id=request.user.id)
+        items = models.Cart.objects.filter(is_paid=1, user_id=request.user.id)
         serializer = serializers.CartSerializer(items, many=True)
         return Response(serializer.data)

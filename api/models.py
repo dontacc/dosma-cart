@@ -8,6 +8,7 @@ from django.db.models import F, Sum
 class product(models.Model):
     title = models.CharField(max_length=225, verbose_name="عنوان")
     price = models.IntegerField(verbose_name="قیمت")
+    slug = models.SlugField(default="" , null=True)
 
     def __str__(self):
         return self.title

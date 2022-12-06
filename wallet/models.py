@@ -1,10 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from .variables import STATUS_KIND,TRANSACTION_KIND
 
-STATUS_KIND = (
-    (0, "not paid"),
-    (1, "paid")
-)
 
 
 class Wallet(models.Model):
@@ -13,6 +10,7 @@ class Wallet(models.Model):
 
     def __str__(self):
         return self.user.username
+
 
 
 # har deposit yek user dare, va har user chandin deposit mitone dashte bashe
