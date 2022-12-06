@@ -21,7 +21,7 @@ class userSerializer(serializers.ModelSerializer):
 
 class CartSerializer(serializers.ModelSerializer):
     # user = serializers.SlugField()
-    # product = sampleProductSerializer()
+    product = sampleProductSerializer(read_only=True)
     class Meta:
         model = models.Cart
-        fields = ["id", "user", "is_paid", "product", "payment", "created"]
+        fields = ["id", "user", "product", "payment_status", "created"]

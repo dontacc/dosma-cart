@@ -15,16 +15,6 @@ from . import serializers
 from .permissions import IsStaffOrReadOnly
 
 
-def BalanceWallet(request):
-    wallet = models.Wallet.filter(wallet_id=request.user.id)
-    balance = 0
-    deposits = sum([item.amount for item in models.Deposit.filter(deposit_id=request.user.id)])
-    withdraw = sum([item.amount for item in models.Withdraw.filter(withdraw_id=request.user.id)])
-    balance = deposits - withdraw
-    wallet.total_balance = balance
-    wallet.save()
-
-
 class WalletView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -46,7 +36,6 @@ class DepositView(APIView):
     def get(self, request):
         try:
             depoistList = models.Deposit.objects.filter(user_id=request.user.id, status=True)
-
         except:
             return Response("تراکنشی موجود نیست", status=status.HTTP_200_OK)
         serializer = serializers.DepositSerializer(depoistList, many=True)
@@ -59,8 +48,6 @@ class DepositView(APIView):
             Amount = serializer.validated_data.get("amount")
             serializer.save()
 
-            # go-to-gateway
-            # خواندن مبلغ از هر جایی که مد نظر است
             amount = Amount
             # تنظیم شماره موبایل کاربر از هر جایی که مد نظر است
             user_mobile_number = '+989112221234'  # اختیاری
@@ -71,16 +58,11 @@ class DepositView(APIView):
                 bank = factory.create()  # or factory.create(bank_models.BankType.BMI) or set identifier
                 bank.set_request(request)
                 bank.set_amount(amount)
-                # یو آر ال بازگشت به نرم افزار برای ادامه فرآیند
                 # bank.set_client_callback_url(reverse('callback-gateway'))
                 bank.set_client_callback_url('/wallet/callback-gateway/')
                 bank.set_mobile_number(user_mobile_number)  # اختیاری
-                # در صورت تمایل اتصال این رکورد به رکورد فاکتور یا هر چیزی که بعدا بتوانید ارتباط بین محصول یا خدمات را با این
-                # پرداخت برقرار کنید.
                 bank_record = bank.ready()
-                # هدایت کاربر به درگاه بانک
                 return bank.redirect_gateway()
-
 
             except AZBankGatewaysException as e:
                 logging.critical(e)
@@ -107,8 +89,8 @@ class CallBackView(APIView):
             # پرداخت با موفقیت انجام پذیرفته است و بانک تایید کرده است.
             # می توانید کاربر را به صفحه نتیجه هدایت کنید یا نتیجه را نمایش دهید.
 
-            obj = models.Deposit.objects.get(user_id=request.user.id, status=False)
-            obj.status = True
+            obj = models.Deposit.objects.filter(user_id=request.user.id, status=0).last()
+            obj.status = 1
             obj.save()  # .save faghat be single obj javab mide yani vaghti .get bashe na .filter
 
             balance = models.Wallet.objects.get(user_id=request.user.id)
@@ -118,8 +100,7 @@ class CallBackView(APIView):
             return Response("پرداخت با موفقیت انجام شد.", status=status.HTTP_201_CREATED)
 
         # پرداخت موفق نبوده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.
-        if len(models.Deposit.objects.filter(status=False, user_id=request.user.id)) >= 1:
-            models.Deposit.objects.filter(status=False, user_id=request.user.id).delete()
+
         return Response(
             "پرداخت با شکست مواجه شده است. اگر پول کم شده است ظرف مدت ۴۸ ساعت پول به حساب شما بازخواهد گشت.")
 
